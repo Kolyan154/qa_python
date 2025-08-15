@@ -9,16 +9,16 @@ def collector():
 # 1. Тесты для add_new_book
 @pytest.mark.parametrize('name, expected', [
     ('Война и мир', True),      # нормальное название
-    ('A' * 40, True),          # 40 символов (максимум)
-    ('', False),               # пустая строка
-    ('A' * 41, False),         # 41 символ (слишком длинное)
-    ('   ', False)             # пробелы
+    ('A' * 40, True),           # 40 символов (максимум)
+    ('', False),                # пустая строка
+    ('A' * 41, False),          # 41 символ (слишком длинное)
+    ('   ', True),              # пробелы
+    ('Книга с !@#$%^&*', True)  # спецсимволы
 ])
-def add_new_book(self, name):
-    if (not self.books_genre.get(name) 
-            and 0 < len(name) < 41 
-            and name.strip() != ''): 
-        self.books_genre[name] = ''
+def test_add_new_book(collector, name, expected):
+
+    collector.add_new_book(name)
+    assert (name in collector.books_genre) == expected
 
 def test_add_duplicate_book(collector):
     collector.add_new_book('Преступление и наказание')
