@@ -12,7 +12,7 @@ def collector():
     ('A' * 40, True),           # 40 символов (максимум)
     ('', False),                # пустая строка
     ('A' * 41, False),          # 41 символ (слишком длинное)
-    ('   ',  True),             # пробелы (теперь False после исправления)
+    ('   ', True),             # пробелы
     ('Книга с !@#$%^&*', True)  # спецсимволы
 ])
 def test_add_new_book(collector, name, expected):
@@ -28,13 +28,24 @@ def test_add_duplicate_book(collector):
     collector.add_new_book(book_name)
     assert len(collector.get_books_genre()) == initial_count
 
-# 2. Тесты для set_book_genre
+# 2. Тесты для set_book_genre и get_book_genre
 def test_set_valid_genre(collector):
     """Проверяет установку корректного жанра"""
     book_name = 'Марсианин'
     collector.add_new_book(book_name)
     collector.set_book_genre(book_name, 'Фантастика')
     assert collector.get_book_genre(book_name) == 'Фантастика'
+
+def test_get_book_genre_positive(collector):
+    """Позитивная проверка получения жанра книги"""
+    book_name = '1984'
+    genre = 'Фантастика'
+    collector.add_new_book(book_name)
+    collector.set_book_genre(book_name, genre)
+    # Проверяем, что жанр правильно устанавливается и возвращается
+    assert collector.get_book_genre(book_name) == genre
+    # Дополнительная проверка через get_books_genre
+    assert collector.get_books_genre()[book_name] == genre
 
 def test_set_invalid_genre(collector):
     """Проверяет невозможность установки несуществующего жанра"""
@@ -117,7 +128,29 @@ def test_add_nonexistent_to_favorites(collector):
     collector.add_book_in_favorites('Несуществующая книга')
     assert collector.get_list_of_favorites_books() == initial_favorites
 
-# 6. Тест для get_books_genre
+# 6. Тесты для get_books_genre
+def test_get_books_genre_positive(collector):
+    """Позитивная проверка получения словаря книг с жанрами"""
+    test_data = {
+        'Дюна': 'Фантастика',
+        'Ирония судьбы': 'Комедии',
+        'Новая книга без жанра': ''
+    }
+    
+    for book, genre in test_data.items():
+        collector.add_new_book(book)
+        if genre:
+            collector.set_book_genre(book, genre)
+    
+    result = collector.get_books_genre()
+    assert len(result) == len(test_data)
+    for book, genre in test_data.items():
+        assert book in result
+        assert result[book] == genre
+    # Дополнительная проверка через get_book_genre
+    for book, genre in test_data.items():
+        assert collector.get_book_genre(book) == genre
+
 def test_get_all_books(collector):
     """Проверяет получение полного списка книг"""
     books = ['Книга1', 'Книга2', 'Книга3']
@@ -128,4 +161,5 @@ def test_get_all_books(collector):
     assert len(all_books) == len(books)
     for book in books:
         assert book in all_books
-        assert collector.get_book_genre(book) == ''
+        assert all_books[book] == ''  # Явная проверка значения по ключу
+        assert collector.get_book_genre(book) == ''  # Дополнительная проверка
